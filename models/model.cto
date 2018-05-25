@@ -1,0 +1,147 @@
+/*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+namespace aircraft
+
+enum PartType {
+
+   o INTERIOR_NON_CRITICAL
+o	ELECTRONICS
+o	FLIGHT_GUIDANCE
+o	ENGINE
+o	FLAPS
+o	FUSELAGE
+o	WINGS
+o	LANDING_GEAR
+o	TAIL
+o   APPRENTICE
+} 
+
+
+enum Status {
+
+   o INSPECT
+o REPLACED
+o REPLACEMENT
+o DESTORY
+o ADD
+   
+}
+
+enum partCondition {
+
+   o GOOD
+    o POOR
+    o DESTROY
+    o IMPROVES
+
+}
+
+
+
+concept PartServiceHistory {
+
+--> Part part optional 	 
+--> Plane plane optional
+--> Mechanic mechanic
+   o Status service
+o DateTime time
+
+}
+
+asset Plane identified by nNumber {
+
+   o String nNumber
+   --> Part[] parts optional
+
+}
+
+participant Mechanic identified by faaMechanicId {
+
+   o String faaMechanicId
+o String Name
+o String phone
+o PartType[] certification
+   
+}
+
+participant Regulator identified by regulatorId {
+
+ o String regulatorId
+
+}
+
+enum SuspicionStatus{
+  o ON_GOING
+  o RESOLVED
+
+  }
+asset Suspicion identified by SuspicionId
+  {
+  o String SuspicionId
+  o String comments optional
+  o SuspicionStatus status optional
+  o String situationNumber optional
+  o DateTime time
+  --> Part part optional
+  }
+
+asset Part identified by serialNumber {
+
+o String serialNumber
+o String description optional
+o String partNumber optional
+o PartType type
+o String plane optional
+o partCondition certificate
+o DateTime creationDate optional
+o Integer condition default=10 range=[0,10] 
+o PartServiceHistory[] history optional
+
+}
+ 
+ 
+abstract transaction ModifyPart {
+ 
+ --> Part part
+ --> Mechanic mechanic
+
+}
+ transaction AddPartToPlane extends ModifyPart {
+--> Plane plane
+}
+
+ transaction InspectPart extends ModifyPart {
+
+ o Integer newCondition range=[0,10]
+ --> Plane plane optional
+
+}
+  transaction ReplacePart extends ModifyPart {
+ 
+ --> Part newPart
+--> Plane plane
+}
+  transaction DestroyPart {
+  --> Part oldPart
+}
+  transaction CreatePart {
+    o Part newPart
+}
+  
+  transaction UpdateSuspicious
+ 
+  {
+--> Suspicion suspicion
+}
